@@ -31,7 +31,7 @@
   }
 
   .header img {
-    width: 80px;
+    width: 65px;
     margin-bottom: 10px;
   }
 
@@ -237,7 +237,10 @@ document.getElementById("submit-btn").addEventListener("click", () => {
 // Share on X
 document.getElementById("share-btn").addEventListener("click", () => {
   const score = document.getElementById("score").innerText;
-  const text = `I scored ${score}/10 on the WOOFi Pro Quiz ⚡ Try it here: https://woo-rust.vercel.app/`;
+  const currentUrl = window.location.href; // gets the actual page URL
+const text = `I scored ${score}/10 on the WOOFi Pro Quiz ⚡ Try it here: ${currentUrl}`;
+const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+window.open(url, "_blank");
   const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
   window.open(url, "_blank");
 });
