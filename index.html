@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOOFi Pro Quiz</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+  body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #f7d9f7, #d0f0fc);
+    min-height: 100vh;
+    color: #222;
+  }
+
+  .quiz-container {
+    max-width: 750px;
+    margin: 40px auto;
+    background: #ffffffcc;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 25px;
+  }
+
+  .header img {
+    width: 180px;
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #222;
+  }
+
+  .question-card {
+    background: #f0f5ff;
+    border: 1px solid #cce0ff;
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    transition: 0.3s;
+  }
+
+  .question {
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .options button {
+    display: block;
+    width: 100%;
+    background: #ffffff;
+    color: #222;
+    border: 1px solid #bbb;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin: 6px 0;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  .options button:hover {
+    background: #e0f0ff;
+    border-color: #3399ff;
+  }
+
+  .options button.correct {
+    background: #c8f7c5;
+    border-color: #2ecc71;
+  }
+
+  .options button.wrong {
+    background: #ffd6d6;
+    border-color: #e74c3c;
+  }
+
+  .submit-btn {
+    background: #ff9900;
+    color: #fff;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 20px;
+    width: 100%;
+    font-size: 16px;
+    transition: 0.3s;
+  }
+
+  .submit-btn:hover {
+    background: #e68a00;
+  }
+
+  .score-area {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  .share-btn {
+    background: #1d9bf0;
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 15px;
+  }
+
+  .footer {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 14px;
+    color: #555;
+  }
+
+  .footer a {
+    color: #1d9bf0;
+    text-decoration: none;
+  }
+
+  @media (max-width:600px){
+    .quiz-container{
+      margin:20px;
+      padding:20px;
+    }
+  }
+
+</style>
+</head>
+<body>
+
+<div class="quiz-container">
+  <div class="header">
+    <img src="https://pro.woofi.com/logo.png" alt="WOOFi Pro Logo">
+    <h1>WOOFi Pro Quiz</h1>
+  </div>
+
+  <div id="quiz"></div>
+
+  <button id="submit-btn" class="submit-btn">Submit Quiz</button>
+
+  <div class="score-area" id="score-area" style="display:none;">
+    <h2>Your Score: <span id="score"></span>/10 🎯</h2>
+    <button class="share-btn" id="share-btn">Share on X</button>
+  </div>
+
+  <div class="footer">
+    Created by <a href="https://x.com/_owletto" target="_blank">@_owletto</a>
+  </div>
+</div>
+
+<script>
+const quizData = [
+  { q: "What type of platform is WOOFi Pro?", options: ["Spot order-book CEX","Order-book perpetual DEX","Swap aggregator","Futures exchange"], answer: 1 },
+  { q: "What is the maximum leverage on WOOFi Pro?", options: ["10×","20×","50×","100×"], answer: 3 },
+  { q: "Which margin mode does WOOFi Pro use?", options: ["Isolated only","Cross only","Hybrid (both)","No margin"], answer: 1 },
+  { q: "What’s the key benefit of perpetual futures?", options: ["Leveraged long/short without expiry","Completely risk-free","Higher liquidity","No collateral"], answer: 0 },
+  { q: "How many signature requests to start trading?", options: ["None","One","Two","Three"], answer: 2 },
+  { q: "What login options does WOOFi Pro offer?", options: ["Wallet only","Email only","Email/social + wallet","Institutional only"], answer: 2 },
+  { q: "What happens to unrealized PnL on open trades?", options: ["Converted to WOO","Added/subtracted from margin","Calculated at closing","Paid daily"], answer: 1 },
+  { q: "Which asset is used for collateral and settlement?", options: ["ETH","BTC","USDC","WOO"], answer: 2 },
+  { q: "How to get lower fees on WOOFi Pro?", options: ["Stake WOO or trade more","Refer users","Use market orders","Keep old account"], answer: 0 },
+  { q: "What describes WOOFi Pro’s custody model?", options: ["Fully custodial","Non-custodial, CEX-like","Hybrid custody","Institutional only"], answer: 1 }
+];
+
+const quizContainer = document.getElementById("quiz");
+
+// Generate all questions
+quizData.forEach((qData, qIndex) => {
+  const card = document.createElement("div");
+  card.classList.add("question-card");
+
+  const qText = document.createElement("div");
+  qText.classList.add("question");
+  qText.textContent = `${qIndex + 1}. ${qData.q}`;
+  card.appendChild(qText);
+
+  const optionsDiv = document.createElement("div");
+  optionsDiv.classList.add("options");
+
+  qData.options.forEach((opt, i) => {
+    const btn = document.createElement("button");
+    btn.textContent = opt;
+    btn.addEventListener("click", () => {
+      // Only allow one selection per question
+      const buttons = optionsDiv.querySelectorAll("button");
+      buttons.forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+    });
+    optionsDiv.appendChild(btn);
+  });
+
+  card.appendChild(optionsDiv);
+  quizContainer.appendChild(card);
+});
+
+// Submit button logic
+document.getElementById("submit-btn").addEventListener("click", () => {
+  let score = 0;
+  const questionCards = document.querySelectorAll(".question-card");
+
+  questionCards.forEach((card, qIndex) => {
+    const selected = card.querySelector(".options .selected");
+    const buttons = card.querySelectorAll("button");
+    buttons.forEach((btn, i) => {
+      btn.disabled = true;
+      if (i === quizData[qIndex].answer) {
+        btn.classList.add("correct");
+      }
+    });
+    if (selected) {
+      if (quizData[qIndex].options.indexOf(selected.textContent) === quizData[qIndex].answer) {
+        score++;
+      } else {
+        selected.classList.add("wrong");
+      }
+    }
+  });
+
+  document.getElementById("score").innerText = score;
+  document.getElementById("score-area").style.display = "block";
+});
+
+// Share on X
+document.getElementById("share-btn").addEventListener("click", () => {
+  const score = document.getElementById("score").innerText;
+  const text = `I scored ${score}/10 on the WOOFi Pro Quiz ⚡ Try it here: https://woo-rust.vercel.app/`;
+  const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+  window.open(url, "_blank");
+});
+</script>
+
+</body>
+  </html>
